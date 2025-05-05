@@ -1,4 +1,0 @@
-# kustomization.yaml
-resources:
-  - values.yaml
-  - application.yaml
