@@ -1,14 +1,11 @@
 replicaCount: 1
-
 image:
   repository: pashok2398/paveld-rads
-  tag: latest
+  tag: 1.0.3
   pullPolicy: IfNotPresent
-
 service:
   type: ClusterIP
   port: 8080
-
 ingress:
   enabled: true
   className: traefik
@@ -24,5 +21,4 @@ ingress:
     - secretName: paveld-rads-tls
       hosts:
         - paveld-rads.druyan.net
-
 resources: {}
