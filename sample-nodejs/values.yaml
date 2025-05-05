@@ -1,6 +1,7 @@
 replicaCount: 1
 image:
   repository: pashok2398/paveld-rads
+  path: helm
   tag: 1.0.3
   pullPolicy: IfNotPresent
 service:
