@@ -1,19 +1,38 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ .Release.Name }}-ingress
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "your-app.fullname" . }}-ingress
+  labels:
+    {{- include "your-app.labels" . | nindent 4 }}
   annotations:
-    kubernetes.io/ingress.class: "traefik"
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: {{ .Values.ingress.hostname | quote }}
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: {{ .Release.Name }}
-            port:
-              number: {{ .Values.service.port }}
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ include "your-app.fullname" $ }}-service
+                port:
+                  number: {{ $.Values.service.port }}
+          {{- end }}
+    {{- end }}
+
+  {{- if .Values.ingress.tls.enabled }}
+  tls:
+    - secretName: {{ .Values.ingress.tls.secretName }}
+      hosts:
+        {{- range .Values.ingress.tls.hosts }}
+        - {{ . }}
+        {{- end }}
+  {{- end }}
+{{- end }}

@@ -63,7 +63,21 @@ service:
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
   enabled: true
-  hostname: paveld-rads.druyan.net
+  className: traefik
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+  hosts:
+    - host: paveld-rads.druyan.net
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    enabled: true
+    secretName: paveld-rads-tls
+    hosts:
+      - paveld-rads.druyan.net
+
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
