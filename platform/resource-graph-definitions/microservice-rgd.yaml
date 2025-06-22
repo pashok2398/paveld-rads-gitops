@@ -34,9 +34,9 @@ spec:
         path: string | default="/" description="Ingress path"
         middlewares: "[]string"
     status:
-      availableReplicas: ${deployment.status.availableReplicas}
-      readyReplicas: ${deployment.status.readyReplicas}
-      replicas: ${deployment.status.replicas}
+      availableReplicas: integer | from="${deployment.status.availableReplicas}"
+      readyReplicas: integer | from="${deployment.status.readyReplicas}"
+      replicas: integer | from="${deployment.status.replicas}"
 
   resources:
   - id: configmap

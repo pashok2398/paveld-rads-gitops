@@ -27,9 +27,9 @@ spec:
         username: string | default="app" description="Default username"
         password: string | required=true description="Default user password"
     status:
-      availableReplicas: ${deployment.status.availableReplicas}
-      readyReplicas: ${deployment.status.readyReplicas}
-      pvcPhase: ${pvc.status.phase}
+      availableReplicas: integer | from="${deployment.status.availableReplicas}"
+      readyReplicas: integer | from="${deployment.status.readyReplicas}"
+      pvcPhase:  integer | from="${pvc.status.phase}"
 
   resources:
   - id: secret
