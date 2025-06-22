@@ -26,7 +26,7 @@ spec:
         ingressClass: string | default="nginx" description="Ingress class"
     status:
       availableReplicas: integer | from="${deployment.status.availableReplicas}"
-      readyReplicas: integer | from="${deployment.status.read"
+      readyReplicas: integer | from="${deployment.status.read}"
       replicas: integer | from="${deployment.status.replicas}"
 
 
