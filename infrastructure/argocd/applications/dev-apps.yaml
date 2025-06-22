@@ -1,0 +1,58 @@
+# infrastructure/argocd/applications/dev-apps.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-webapp
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: dev-webapp
+    environment: dev
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pashok2398/paveld-rads-gitops.git
+    targetRevision: HEAD
+    path: environments/dev/webapp
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  info:
+  - name: Environment
+    value: Development
+  - name: Description
+    value: Development webapp instances
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: dev-database
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: dev-database
+    environment: dev
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pashok2398/paveld-rads-gitops.git
+    targetRevision: HEAD
+    path: environments/dev/database
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+  info:
+  - name: Environment
+    value: Development
+  - name: Description
+    value: Development database instances

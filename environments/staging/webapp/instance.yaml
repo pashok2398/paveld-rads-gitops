@@ -1,0 +1,30 @@
+# environments/staging/webapp/instance.yaml
+apiVersion: v1alpha1
+kind: WebApp
+metadata:
+  name: paveld-webapp-staging
+  namespace: staging
+  labels:
+    environment: staging
+    service: webapp
+    managed-by: kro
+spec:
+  name: paveld-webapp
+  image: nginx:1.25-alpine
+  replicas: 2
+  port: 80
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+    limits:
+      cpu: "300m"
+      memory: "512Mi"
+  env:
+    ENVIRONMENT: "staging"
+    DEBUG: "false"
+    LOG_LEVEL: "info"
+  ingress:
+    enabled: true
+    host: paveld-webapp-staging.local
+    path: "/"

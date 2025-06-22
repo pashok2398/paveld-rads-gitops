@@ -1,0 +1,48 @@
+# infrastructure/argocd/applicationsets/multi-env-apps.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: multi-env-applications
+  namespace: argocd
+spec:
+  generators:
+  - matrix:
+      generators:
+      - list:
+          elements:
+          - environment: dev
+            cluster: https://kubernetes.default.svc
+          - environment: staging
+            cluster: https://kubernetes.default.svc
+          - environment: prod
+            cluster: https://kubernetes.default.svc
+      - list:
+          elements:
+          - service: webapp
+          - service: database
+  template:
+    metadata:
+      name: '{{environment}}-{{service}}'
+      labels:
+        environment: '{{environment}}'
+        service: '{{service}}'
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/pashok2398/paveld-rads-gitops.git
+        targetRevision: HEAD
+        path: 'environments/{{environment}}/{{service}}'
+      destination:
+        server: '{{cluster}}'
+        namespace: '{{environment}}'
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+        - CreateNamespace=true
+      info:
+      - name: Environment
+        value: '{{environment}}'
+      - name: Service
+        value: '{{service}}'

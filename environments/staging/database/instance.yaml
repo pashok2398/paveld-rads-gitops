@@ -1,0 +1,26 @@
+# environments/staging/database/instance.yaml
+apiVersion: v1alpha1
+kind: Database
+metadata:
+  name: paveld-db-staging
+  namespace: staging
+  labels:
+    environment: staging
+    service: database
+    managed-by: kro
+spec:
+  name: paveld-db
+  type: postgresql
+  version: "15"
+  storage:
+    size: "10Gi"
+    storageClass: "local-path"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "512Mi"
+    limits:
+      cpu: "1000m"
+      memory: "1Gi"
+  auth:
+    rootPassword: "staging-root-password"

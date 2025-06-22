@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# create-structure.sh - Create the complete directory structure
+
+echo "📁 Creating GitOps repository structure..."
+
+# Create main directories
+mkdir -p infrastructure/{kro,argocd/{applications,applicationsets},traefik}
+mkdir -p platform/resource-graph-definitions
+mkdir -p environments/{dev,staging,prod}/{webapp,database}
+mkdir -p legacy/{helm-charts,values}
+
+# Create empty files to maintain directory structure in git
+touch infrastructure/kro/.gitkeep
+touch infrastructure/argocd/applications/.gitkeep
+touch infrastructure/argocd/applicationsets/.gitkeep
+touch infrastructure/traefik/.gitkeep
+touch platform/resource-graph-definitions/.gitkeep
+touch environments/dev/webapp/.gitkeep
+touch environments/dev/database/.gitkeep
+touch environments/staging/webapp/.gitkeep
+touch environments/staging/database/.gitkeep
+touch environments/prod/webapp/.gitkeep
+touch environments/prod/database/.gitkeep
+touch legacy/helm-charts/.gitkeep
+touch legacy/values/.gitkeep
+
+echo "✅ Directory structure created successfully!"
+
+# Display the created structure
+echo ""
+echo "📂 Repository structure:"
+tree . -I '.git|.gitkeep' || find . -type d | sort

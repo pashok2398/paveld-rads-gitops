@@ -1,0 +1,27 @@
+# infrastructure/argocd/applications/kro-platform.yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kro-platform
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: kro-platform
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/pashok2398/paveld-rads-gitops.git
+    targetRevision: HEAD
+    path: platform/resource-graph-definitions
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+    - CreateNamespace=true
+    - ApplyOutOfSyncOnly=true
+  info:
+  - name: Description
+    value: KRO ResourceGraphDefinitions for platform templates

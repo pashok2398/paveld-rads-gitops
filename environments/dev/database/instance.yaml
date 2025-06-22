@@ -1,0 +1,29 @@
+# environments/dev/database/instance.yaml
+apiVersion: v1alpha1
+kind: Database
+metadata:
+  name: paveld-db-dev
+  namespace: dev
+  labels:
+    environment: dev
+    service: database
+    managed-by: kro
+spec:
+  name: paveld-db
+  type: postgresql
+  version: "15"
+  storage:
+    size: "5Gi"
+    storageClass: "local-path"
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  auth:
+    rootPassword: "dev-root-password"
+    database: "paveld_dev"
+    username: "paveld_user"
+    password: "dev-user-password"

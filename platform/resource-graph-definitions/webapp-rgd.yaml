@@ -1,0 +1,109 @@
+# platform/resource-graph-definitions/webapp-rgd.yaml (CORRECTED)
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: webapp
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: WebApp
+    spec:
+      name: string | required=true description="Application name"
+      image: string | required=true description="Container image"
+      replicas: integer | default=1 minimum=1 maximum=10 description="Number of replicas"
+      port: integer | default=8080 description="Container port"
+      resources:
+        requests:
+          cpu: string | default="100m" description="CPU request"
+          memory: string | default="128Mi" description="Memory request"
+        limits:
+          cpu: string | default="500m" description="CPU limit"
+          memory: string | default="512Mi" description="Memory limit"
+      env: "map[string]string"
+      ingress:
+        enabled: boolean | default=false description="Enable ingress"
+        host: string | default="app.local" description="Ingress hostname"
+        path: string | default="/" description="Ingress path"
+        middlewares: "[]string"
+    status:
+      deploymentConditions: ${deployment.status.conditions}
+      availableReplicas: ${deployment.status.availableReplicas}
+      phase: ${deployment.status.phase}
+
+  resources:
+  - id: deployment
+    template:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ${schema.spec.name}
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        replicas: ${schema.spec.replicas}
+        selector:
+          matchLabels:
+            app: ${schema.spec.name}
+        template:
+          metadata:
+            labels:
+              app: ${schema.spec.name}
+          spec:
+            containers:
+            - name: ${schema.spec.name}
+              image: ${schema.spec.image}
+              ports:
+              - containerPort: ${schema.spec.port}
+                name: http
+              resources:
+                requests:
+                  cpu: ${schema.spec.resources.requests.cpu}
+                  memory: ${schema.spec.resources.requests.memory}
+                limits:
+                  cpu: ${schema.spec.resources.limits.cpu}
+                  memory: ${schema.spec.resources.limits.memory}
+              env:
+              - name: PORT
+                value: "${schema.spec.port}"
+
+  - id: service
+    template:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: ${schema.spec.name}-service
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        selector: ${deployment.spec.selector.matchLabels}
+        ports:
+        - port: 80
+          targetPort: ${schema.spec.port}
+          name: http
+        type: ClusterIP
+
+  - id: ingress
+    includeWhen:
+    - ${schema.spec.ingress.enabled}
+    template:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: ${schema.spec.name}-ingress
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        entryPoints:
+          - web
+        routes:
+        - match: Host(`${schema.spec.ingress.host}`) && PathPrefix(`${schema.spec.ingress.path}`)
+          kind: Rule
+          services:
+          - name: ${service.metadata.name}
+            port: 80

@@ -1,0 +1,34 @@
+# environments/prod/webapp/instance.yaml
+apiVersion: v1alpha1
+kind: WebApp
+metadata:
+  name: paveld-webapp-prod
+  namespace: prod
+  labels:
+    environment: prod
+    service: webapp
+    managed-by: kro
+spec:
+  name: paveld-webapp
+  image: nginx:1.25-alpine
+  replicas: 5
+  port: 80
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  env:
+    ENVIRONMENT: "production"
+    DEBUG: "false"
+    LOG_LEVEL: "warn"
+    CACHE_ENABLED: "true"
+  ingress:
+    enabled: true
+    host: paveld-webapp.com
+    path: "/"
+    middlewares:
+      - "default-headers"
+      - "rate-limit"

@@ -1,0 +1,30 @@
+# environments/dev/webapp/instance.yaml
+apiVersion: v1alpha1
+kind: WebApp
+metadata:
+  name: paveld-webapp-dev
+  namespace: dev
+  labels:
+    environment: dev
+    service: webapp
+    managed-by: kro
+spec:
+  name: paveld-webapp
+  image: nginx:1.25-alpine
+  replicas: 1
+  port: 80
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+  env:
+    ENVIRONMENT: "development"
+    DEBUG: "true"
+    LOG_LEVEL: "debug"
+  ingress:
+    enabled: true
+    host: paveld-webapp-dev.local
+    path: "/"

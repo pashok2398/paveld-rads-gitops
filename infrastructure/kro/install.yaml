@@ -1,0 +1,47 @@
+# infrastructure/kro/install.yaml
+# This file downloads and installs KRO from the official release
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kro-system
+---
+# KRO Installation - This will be replaced with actual manifests
+# For now, this is a placeholder that references the official installation
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: install-kro
+  namespace: kro-system
+spec:
+  template:
+    spec:
+      serviceAccountName: kro-installer
+      containers:
+      - name: installer
+        image: curlimages/curl:latest
+        command:
+        - /bin/sh
+        - -c
+        - |
+          curl -L https://github.com/kro-run/kro/releases/latest/download/install.yaml | kubectl apply -f -
+      restartPolicy: OnFailure
+  backoffLimit: 3
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kro-installer
+  namespace: kro-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kro-installer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: kro-installer
+  namespace: kro-system

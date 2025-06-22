@@ -1,0 +1,29 @@
+# environments/prod/database/instance.yaml
+apiVersion: v1alpha1
+kind: Database
+metadata:
+  name: paveld-db-prod
+  namespace: prod
+  labels:
+    environment: prod
+    service: database
+    managed-by: kro
+spec:
+  name: paveld-db
+  type: postgresql
+  version: "15"
+  storage:
+    size: "100Gi"
+    storageClass: "local-path"
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2000m"
+      memory: "4Gi"
+  auth:
+    rootPassword: "CHANGE_ME_PRODUCTION_ROOT_PASSWORD"
+    database: "paveld_prod"
+    username: "paveld_user"
+    password: "CHANGE_ME_PRODUCTION_USER_PASSWORD"

@@ -1,0 +1,130 @@
+# platform/resource-graph-definitions/database-rgd.yaml
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: database
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: Database
+    spec:
+      name: string | required=true description="Database name"
+      type: string | default="postgresql" description="Database type (postgresql, mysql, mongodb)"
+      version: string | default="15" description="Database version"
+      storage:
+        size: string | default="10Gi" description="Storage size"
+        storageClass: string | default="local-path" description="Storage class"
+      resources:
+        requests:
+          cpu: string | default="100m" description="CPU request"
+          memory: string | default="256Mi" description="Memory request"
+        limits:
+          cpu: string | default="1000m" description="CPU limit"
+          memory: string | default="1Gi" description="Memory limit"
+      auth:
+        rootPassword: string | required=true description="Root password"
+        database: string | default="app" description="Default database name"
+        username: string | default="app" description="Default username"
+        password: string | required=true description="Default user password"
+    status:
+      deploymentConditions: ${deployment.status.conditions}
+      availableReplicas: ${deployment.status.availableReplicas}
+      storageStatus: ${pvc.status.phase}
+
+  resources:
+  - id: secret
+    template:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: ${schema.spec.name}-auth
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      type: Opaque
+      stringData:
+        POSTGRES_PASSWORD: ${schema.spec.auth.rootPassword}
+        POSTGRES_USER: ${schema.spec.auth.username}
+        POSTGRES_DB: ${schema.spec.auth.database}
+        APP_PASSWORD: ${schema.spec.auth.password}
+
+  - id: pvc
+    template:
+      apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
+        name: ${schema.spec.name}-data
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        storageClassName: ${schema.spec.storage.storageClass}
+        resources:
+          requests:
+            storage: ${schema.spec.storage.size}
+
+  - id: deployment
+    template:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: ${schema.spec.name}
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: ${schema.spec.name}
+        template:
+          metadata:
+            labels:
+              app: ${schema.spec.name}
+          spec:
+            containers:
+            - name: ${schema.spec.type}
+              image: postgres:${schema.spec.version}
+              ports:
+              - containerPort: 5432
+                name: postgres
+              envFrom:
+              - secretRef:
+                  name: ${secret.metadata.name}
+              resources:
+                requests:
+                  cpu: ${schema.spec.resources.requests.cpu}
+                  memory: ${schema.spec.resources.requests.memory}
+                limits:
+                  cpu: ${schema.spec.resources.limits.cpu}
+                  memory: ${schema.spec.resources.limits.memory}
+              volumeMounts:
+              - name: data
+                mountPath: /var/lib/postgresql/data
+            volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: ${pvc.metadata.name}
+
+  - id: service
+    template:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: ${schema.spec.name}-service
+        namespace: ${instance.metadata.namespace}
+        labels:
+          app: ${schema.spec.name}
+          managed-by: kro
+      spec:
+        selector: ${deployment.spec.selector.matchLabels}
+        ports:
+        - port: 5432
+          targetPort: 5432
+          name: postgres
+        type: ClusterIP
