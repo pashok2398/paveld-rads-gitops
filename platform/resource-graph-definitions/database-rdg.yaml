@@ -100,13 +100,6 @@ spec:
                 limits:
                   cpu: ${schema.spec.resources.limits.cpu}
                   memory: ${schema.spec.resources.limits.memory}
-              volumeMounts:
-              - name: data
-                mountPath: /var/lib/postgresql/data
-            volumes:
-            - name: data
-              persistentVolumeClaim:
-                claimName: ${pvc.metadata.name}
 
   - id: service
     template:

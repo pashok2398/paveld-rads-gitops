@@ -60,7 +60,7 @@ spec:
                   memory: ${schema.spec.resources.limits.memory}
               env:
               - name: PORT
-                value: "${schema.spec.port}"
+                value: "${string(schema.spec.port)}"
 
   - id: service
     template:

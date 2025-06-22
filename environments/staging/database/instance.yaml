@@ -12,9 +12,6 @@ spec:
   name: paveld-db
   type: postgresql
   version: "15"
-  storage:
-    size: "10Gi"
-    storageClass: "local-path"
   resources:
     requests:
       cpu: "200m"
