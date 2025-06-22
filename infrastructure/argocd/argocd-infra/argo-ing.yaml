@@ -18,10 +18,10 @@ spec:
             name: argocd-server
             port:
               name: http
-    host: argocd.example.com
+    host: argocd.local
   tls:
   - hosts:
-    - argocd.example.com
+    - argocd.local
     secretName: argocd-ingress-http
 ---
 apiVersion: networking.k8s.io/v1
@@ -43,8 +43,8 @@ spec:
             name: argocd-server
             port:
               name: https
-    host: grpc.argocd.example.com
+    host: grpc.argocd.local
   tls:
   - hosts:
-    - grpc.argocd.example.com
+    - grpc.argocd.local
     secretName: argocd-ingress-grpc
