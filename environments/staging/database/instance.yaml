@@ -20,4 +20,7 @@ spec:
       cpu: "1000m"
       memory: "1Gi"
   auth:
-    rootPassword: "staging-root-password"
+    rootPassword: "staging-root_password"
+    database: "paveld_staging"
+    username: "paveld_user"
+    password: "staging-root_password"
