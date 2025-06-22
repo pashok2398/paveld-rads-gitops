@@ -20,7 +20,7 @@ spec:
       cpu: "2000m"
       memory: "4Gi"
   auth:
-    rootPassword: "CHANGE_ME_PRODUCTION_ROOT_PASSWORD"
+    rootPassword: "root_password"
     database: "paveld_prod"
     username: "paveld_user"
-    password: "CHANGE_ME_PRODUCTION_USER_PASSWORD"
+    password: "root_password"
