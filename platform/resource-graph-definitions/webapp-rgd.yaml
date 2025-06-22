@@ -1,4 +1,4 @@
-# platform/resource-graph-definitions/webapp-rgd.yaml (CORRECTED)
+# platform/resource-graph-definitions/webapp-rgd.yaml (CORRECTED FINAL)
 apiVersion: kro.run/v1alpha1
 kind: ResourceGraphDefinition
 metadata:
@@ -19,16 +19,14 @@ spec:
         limits:
           cpu: string | default="500m" description="CPU limit"
           memory: string | default="512Mi" description="Memory limit"
-      env: "map[string]string"
       ingress:
         enabled: boolean | default=false description="Enable ingress"
         host: string | default="app.local" description="Ingress hostname"
         path: string | default="/" description="Ingress path"
-        middlewares: "[]string"
+        ingressClass: string | default="nginx" description="Ingress class"
     status:
-      deploymentConditions: ${deployment.status.conditions}
       availableReplicas: ${deployment.status.availableReplicas}
-      phase: ${deployment.status.phase}
+      readyReplicas: ${deployment.status.readyReplicas}
 
   resources:
   - id: deployment
@@ -37,10 +35,6 @@ spec:
       kind: Deployment
       metadata:
         name: ${schema.spec.name}
-        namespace: ${instance.metadata.namespace}
-        labels:
-          app: ${schema.spec.name}
-          managed-by: kro
       spec:
         replicas: ${schema.spec.replicas}
         selector:
@@ -74,10 +68,6 @@ spec:
       kind: Service
       metadata:
         name: ${schema.spec.name}-service
-        namespace: ${instance.metadata.namespace}
-        labels:
-          app: ${schema.spec.name}
-          managed-by: kro
       spec:
         selector: ${deployment.spec.selector.matchLabels}
         ports:
@@ -90,20 +80,23 @@ spec:
     includeWhen:
     - ${schema.spec.ingress.enabled}
     template:
-      apiVersion: traefik.containo.us/v1alpha1
-      kind: IngressRoute
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
       metadata:
         name: ${schema.spec.name}-ingress
-        namespace: ${instance.metadata.namespace}
-        labels:
-          app: ${schema.spec.name}
-          managed-by: kro
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+          kubernetes.io/ingress.class: ${schema.spec.ingress.ingressClass}
       spec:
-        entryPoints:
-          - web
-        routes:
-        - match: Host(`${schema.spec.ingress.host}`) && PathPrefix(`${schema.spec.ingress.path}`)
-          kind: Rule
-          services:
-          - name: ${service.metadata.name}
-            port: 80
+        ingressClassName: ${schema.spec.ingress.ingressClass}
+        rules:
+        - host: ${schema.spec.ingress.host}
+          http:
+            paths:
+            - path: ${schema.spec.ingress.path}
+              pathType: Prefix
+              backend:
+                service:
+                  name: ${service.metadata.name}
+                  port:
+                    number: 80

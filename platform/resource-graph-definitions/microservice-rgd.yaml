@@ -34,9 +34,9 @@ spec:
         path: string | default="/" description="Ingress path"
         middlewares: "[]string"
     status:
-      deploymentConditions: ${deployment.status.conditions}
       availableReplicas: ${deployment.status.availableReplicas}
       readyReplicas: ${deployment.status.readyReplicas}
+      replicas: ${deployment.status.replicas}
 
   resources:
   - id: configmap
@@ -47,7 +47,6 @@ spec:
       kind: ConfigMap
       metadata:
         name: ${schema.spec.name}-config
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -59,7 +58,6 @@ spec:
       kind: Deployment
       metadata:
         name: ${schema.spec.name}
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -96,7 +94,6 @@ spec:
       kind: Service
       metadata:
         name: ${schema.spec.name}-service
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -112,20 +109,24 @@ spec:
     includeWhen:
     - ${schema.spec.ingress.enabled}
     template:
-      apiVersion: traefik.containo.us/v1alpha1
-      kind: IngressRoute
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
       metadata:
         name: ${schema.spec.name}-ingress
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
       spec:
-        entryPoints:
-          - web
-        routes:
-        - match: Host(`${schema.spec.ingress.host}`) && PathPrefix(`${schema.spec.ingress.path}`)
-          kind: Rule
-          services:
-          - name: ${service.metadata.name}
-            port: 80
+        rules:
+        - host: ${schema.spec.ingress.host}
+          http:
+            paths:
+            - path: ${schema.spec.ingress.path}
+              pathType: Prefix
+              backend:
+                service:
+                  name: ${service.metadata.name}
+                  port:
+                    number: 80

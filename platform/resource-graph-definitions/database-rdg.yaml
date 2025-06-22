@@ -27,9 +27,9 @@ spec:
         username: string | default="app" description="Default username"
         password: string | required=true description="Default user password"
     status:
-      deploymentConditions: ${deployment.status.conditions}
       availableReplicas: ${deployment.status.availableReplicas}
-      storageStatus: ${pvc.status.phase}
+      readyReplicas: ${deployment.status.readyReplicas}
+      pvcPhase: ${pvc.status.phase}
 
   resources:
   - id: secret
@@ -38,7 +38,6 @@ spec:
       kind: Secret
       metadata:
         name: ${schema.spec.name}-auth
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -55,7 +54,6 @@ spec:
       kind: PersistentVolumeClaim
       metadata:
         name: ${schema.spec.name}-data
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -73,7 +71,6 @@ spec:
       kind: Deployment
       metadata:
         name: ${schema.spec.name}
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro
@@ -117,7 +114,6 @@ spec:
       kind: Service
       metadata:
         name: ${schema.spec.name}-service
-        namespace: ${instance.metadata.namespace}
         labels:
           app: ${schema.spec.name}
           managed-by: kro

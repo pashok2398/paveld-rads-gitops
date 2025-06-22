@@ -1,5 +1,5 @@
 # environments/staging/webapp/instance.yaml
-apiVersion: v1alpha1
+apiVersion: kro.run/v1alpha1
 kind: WebApp
 metadata:
   name: paveld-webapp-staging
@@ -28,3 +28,4 @@ spec:
     enabled: true
     host: paveld-webapp-staging.local
     path: "/"
+    ingressClass: "nginx"

@@ -1,5 +1,5 @@
 # environments/prod/database/instance.yaml
-apiVersion: v1alpha1
+apiVersion: kro.run/v1alpha1
 kind: Database
 metadata:
   name: paveld-db-prod
