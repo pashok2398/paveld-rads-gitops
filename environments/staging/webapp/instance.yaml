@@ -21,9 +21,9 @@ spec:
       cpu: "300m"
       memory: "512Mi"
   env:
-    ENVIRONMENT: "staging"
-    DEBUG: "false"
-    LOG_LEVEL: "info"
+    # ENVIRONMENT: "staging"
+    # DEBUG: "false"
+    # LOG_LEVEL: "info"
   ingress:
     enabled: true
     host: paveld-webapp-staging.local

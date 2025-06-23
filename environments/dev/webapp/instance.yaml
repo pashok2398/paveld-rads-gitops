@@ -20,10 +20,10 @@ spec:
     limits:
       cpu: "200m"
       memory: "256Mi"
-  env:
-    ENVIRONMENT: "development"
-    DEBUG: "true"
-    LOG_LEVEL: "debug"
+  # env:
+  #   ENVIRONMENT: "development"
+  #   DEBUG: "true"
+  #   LOG_LEVEL: "debug"
   ingress:
     enabled: true
     host: paveld-webapp-dev.local

@@ -29,7 +29,6 @@ spec:
     status:
       availableReplicas: integer | from="${deployment.status.availableReplicas}"
       readyReplicas: integer | from="${deployment.status.readyReplicas}"
-      pvcPhase:  integer | from="${pvc.status.phase}"
 
   resources:
   - id: secret
@@ -48,22 +47,22 @@ spec:
         POSTGRES_DB: ${schema.spec.auth.database}
         APP_PASSWORD: ${schema.spec.auth.password}
 
-  - id: pvc
-    template:
-      apiVersion: v1
-      kind: PersistentVolumeClaim
-      metadata:
-        name: ${schema.spec.name}-data
-        labels:
-          app: ${schema.spec.name}
-          managed-by: kro
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        storageClassName: ${schema.spec.storage.storageClass}
-        resources:
-          requests:
-            storage: ${schema.spec.storage.size}
+  # - id: pvc
+  #   template:
+  #     apiVersion: v1
+  #     kind: PersistentVolumeClaim
+  #     metadata:
+  #       name: ${schema.spec.name}-data
+  #       labels:
+  #         app: ${schema.spec.name}
+  #         managed-by: kro
+  #     spec:
+  #       accessModes:
+  #       - ReadWriteOnce
+  #       storageClassName: ${schema.spec.storage.storageClass}
+  #       resources:
+  #         requests:
+  #           storage: ${schema.spec.storage.size}
 
   - id: deployment
     template:
