@@ -38,26 +38,26 @@ check_prerequisites() {
 create_kind_cluster() {
     print_status "Creating KIND cluster..."
 
-#     cat <<EOF > /tmp/kind-config.yaml
-# kind: Cluster
-# apiVersion: kind.x-k8s.io/v1alpha4
-# nodes:
-# - role: control-plane
-#   extraPortMappings:
-#   - containerPort: 80
-#     hostPort: 80
-#     protocol: TCP
-#   - containerPort: 443
-#     hostPort: 443
-#     protocol: TCP
-# EOF
-#     kind create cluster --config=/tmp/kind-config.yaml
+    cat <<EOF > /tmp/kind-config.yaml
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+- role: control-plane
+  extraPortMappings:
+  - containerPort: 80
+    hostPort: 80
+    protocol: TCP
+  - containerPort: 443
+    hostPort: 443
+    protocol: TCP
+EOF
+    kind create cluster --config=/tmp/kind-config.yaml
 
-    minikube start --driver=none
+    # minikube start --driver=none
 
     kubectl apply -f https://kind.sigs.k8s.io/examples/ingress/deploy-ingress-nginx.yaml
 
-    sleep 2
+    sleep 5
 
     kubectl wait --namespace ingress-nginx \
         --for=condition=ready pod \
@@ -106,6 +106,12 @@ install_argocd() {
     ARGO_PWD=$(kubectl -n argocd get secret argocd-initial-admin-secret \
         -o jsonpath="{.data.password}" | base64 --decode)
 
+    kubectl patch configmap my-configmap \
+    --type merge \
+    -p '{"data":{"server.insecure":"true"}}'
+
+    kubectl rollout restart deployment -n argocd argocd-server
+    
     print_success "ArgoCD installed successfully"
     echo "🌐 ArgoCD admin password: ${ARGO_PWD}"
 }
